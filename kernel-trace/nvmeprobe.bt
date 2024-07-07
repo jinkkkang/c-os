@@ -1,0 +1,25 @@
+#!/usr/bin/bpftrace                                                                                                                                                                                                                             
+#include <linux/pci.h>
+BEGIN                                                                                                                                                                                                                                           
+{                                                                                                                                                                                                                                               
+        printf("Tracing nvme probe... 通 过  Ctrl-C结 束 .\n");                                                                                                                                                                                 
+        printf("PID COMM  PAGENUM \n");                                                                                                                                                                                                         
+}                                                                                                                                                                                                                                               
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+kprobe:nvme_probe                                                                                                                                                                                                                    
+{                                                                                                                                                                                                                                                    
+        $pdev=(struct pci_dev *)arg0;                                                                                                                                                                                                  
+        $vendor=$pdev->vendor;                                                                                                                                                                                                                                                                                                                                                                                                                           
+        $device=$pdev->device;
+        $dev=$pdev->dev;
+        $name=$dev.kobj.name;
+        @start[$name] =  nsecs
+        printf("%d %s %s %d %d %s\n",pid,comm,str($name),$vendor,$device,strftime("%H:%M:%S", nsecs));                                                                                                                                                                                   
+                                                                                                                                                                                                                                                
+}
+
+
+END                                                                                                                                                                                                                                             
+{                                                                                                                                                                                                                                               
+        printf("bye!");                                                                                                                                                                                                                         
+}

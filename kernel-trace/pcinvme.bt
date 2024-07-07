@@ -1,0 +1,44 @@
+#!/usr/bin/bpftrace                                                                                                                                                                                                                             
+#include <linux/pci.h>
+
+BEGIN                                                                                                                                                                                                                                           
+{                                                                                                                                                                                                                                               
+        printf("Tracing nvme probe... 通 过  Ctrl-C结 束 .\n");                                                                                                                                                                                 
+}                                                                                                                                                                                                                                               
+
+
+
+kprobe:acpiphp_hotplug_notify
+{
+        $adev=(struct acpi_device *)arg0;
+        $type=arg1;
+        //$dtype=$adev->device_type;
+        printf("pid: %d  comm: %s arg2type: %d time: %s\n",pid,comm,$type,strftime("%H:%M:%S:%f", nsecs));                                                                                                                                                                                 
+}
+
+
+kprobe:nvme_probe                                                                                                                                                                                                                    
+{                                                                                                                                                                                                                                                    
+        $pdev=(struct pci_dev *)arg0;                                                                                                                                                                                                  
+        $vendor=$pdev->vendor;                                                                                                                                                                                                                                                                                                                                                                                                                           
+        $device=$pdev->device;
+        $dev=$pdev->dev;
+        $name=$dev.kobj.name;
+        @a=$name; //传递变量
+        @start[$name] = nsecs;
+        printf("%d %s  nvme_probe start: %s %d %d %s\n",pid,comm,str($name),$vendor,$device,strftime("%H:%M:%S:%f", nsecs));                                                                                                                                                                                   
+                                                                                                                                                                                                                                                
+}
+
+
+kretprobe:nvme_probe
+{
+        $name=@a; //传递变量
+        printf("%s nvmeprobe finshed, time:%s  probe costtime: %d ms\n", str($name), strftime("%H:%M:%S:%f", nsecs), (nsecs - @start[$name]) / 1000000);
+}
+
+
+END                                                                                                                                                                                                                                             
+{                                                                                                                                                                                                                                               
+        printf("bye!");                                                                                                                                                                                                                         
+}

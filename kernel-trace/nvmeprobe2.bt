@@ -1,0 +1,33 @@
+#!/usr/bin/bpftrace                                                                                                                                                                                                                             
+#include <linux/pci.h>
+BEGIN                                                                                                                                                                                                                                           
+{                                                                                                                                                                                                                                               
+        printf("Tracing nvme probe... 通 过  Ctrl-C结 束 .\n");                                                                                                                                                                                 
+}                                                                                                                                                                                                                                               
+
+
+kprobe:nvme_probe                                                                                                                                                                                                                    
+{                                                                                                                                                                                                                                                    
+        $pdev=(struct pci_dev *)arg0;                                                                                                                                                                                                  
+        $vendor=$pdev->vendor;                                                                                                                                                                                                                                                                                                                                                                                                                           
+        $device=$pdev->device;
+        $dev=$pdev->dev;
+        $name=$dev.kobj.name;
+        @a=$name; //传递变量
+        @start[$name] = nsecs;
+        printf("%d %s %s %d %d %s\n",pid,comm,str($name),$vendor,$device,strftime("%H:%M:%S", nsecs));                                                                                                                                                                                   
+                                                                                                                                                                                                                                                
+}
+
+
+kretprobe:nvme_probe
+{
+        $name=@a; //传递变量
+        printf("%s, %d ms\n", str($name), (nsecs - @start[$name]) / 1000000);
+}
+
+
+END                                                                                                                                                                                                                                             
+{                                                                                                                                                                                                                                               
+        printf("bye!");                                                                                                                                                                                                                         
+}
