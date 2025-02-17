@@ -12,7 +12,7 @@
 
 
 // 枚举类型转换
-int main()
+int mainxx()
 {
  
     enum day

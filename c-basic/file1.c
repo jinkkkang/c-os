@@ -5,7 +5,13 @@
 #include <errno.h>
 #include <string.h>
 
+/*
+FILE *fopen(const char *filename, const char *mode);
+ mode:  如 "r"、"w"、"a"
+  
 
+还提供一些 fread, fwrite, fprintf, fscanf 等标准库函数来进行文件的读写和格式化操作。
+*/
 int main(int argc, const char *argv[])
 {
    

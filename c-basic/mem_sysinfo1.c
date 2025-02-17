@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <sys/sysinfo.h>
 
+//https://blog.csdn.net/weixin_46158019/article/details/133327950
+
 int main(int argc,char **argv)
 {
     /*2. 获取当前系统内存使用情况*/

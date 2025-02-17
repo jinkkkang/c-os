@@ -1,0 +1,28 @@
+#!/usr/bin/bpftrace
+#include <linux/binfmts.h>
+
+/*
+kprobe:exec_binprm / comm == "bash" /
+{
+        $bin = (struct linux_binprm*)arg0;
+        printf("pid:%d comm:%s file:%s\n", pid,comm, str($bin->filename));
+}
+*/
+
+kprobe:search_binary_handler+201 / comm == "bash" /
+{
+        $bin = (struct linux_binprm*)arg0;
+        printf("201 search pid:%d comm:%s file:%s\n", pid,comm, str($bin->filename));
+        printf("rax:%lx sym:%s\n",reg("ax"),ksym(reg("ax")));
+}
+
+kprobe:search_binary_handler / comm == "bash" /
+{
+        $bin = (struct linux_binprm*)arg0;
+        printf("search pid:%d comm:%s file:%s\n", pid,comm, str($bin->filename));
+}
+
+kretprobe:search_binary_handler / comm == "bash" /
+{
+        printf("search ret pid:%d comm:%s ret:%d\n", pid,comm, retval);
+}

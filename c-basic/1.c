@@ -1,27 +1,25 @@
 #include <stdio.h>
 #include <string.h>
 
-
-struct Books
-{
-   int   book_id;
-   char  title[10];
-   char  name[10];
-};
-
-int main(){ 
-    struct Books book1;
-
-    //记住，这里不能这样写, 字符串在c里面是数组，一旦定义好后，数组的名字就是数组的地址，
-    //即数组首元素的地址，数组名本身是常量地址，意味着它的值是不能被改变的，一旦确定，就不能再指向其他地方。
-    //参考： https://www.runoob.com/cprogramming/c-arrays.html
-    //所以这里不能这样写： book1.title = "world"
-    //而是要用strcpy 或者strmem
-    strcpy(book1.title, "helltitle");
-    char newname = "hahaha";
-    // memccpy(book1.name, &newname,'a',strlen(newname));
-
-    printf("book,%s\n",book1.title);
-    printf("name,%s\n",book1.name);
-
+#include <stdio.h>  
+  
+int main() {  
+    // 假设我们有一个指向int的内存地址，这里我们使用一个示例地址  
+    // 注意：在实际编程中，不要直接使用这样的硬编码地址  
+    unsigned long exampleAddress = 0x12345678; // 示例地址，请替换为实际有效的地址  
+  
+    // 将这个地址转换为指向int的指针  
+    int* ptrToInt = (int*)exampleAddress;  
+  
+    // 假设这个地址确实指向了一个int值，我们尝试读取它  
+    // 注意：如果地址无效或未指向int，下面的行为将是未定义的  
+    int value = *ptrToInt;  
+  
+    // 打印读取到的值  
+    printf("The value at address 0x%lx is: %d\n", exampleAddress, value);  
+  
+    return 0;  
 }
+
+
+https://mirrors.aliyun.com/centos-altarch/7.9.2009/updates/power9/Packages/Packages/kernel-debug-debuginfo-3.10.0-1160.99.1.el7.ppc64le.rpm?spm=a2c6h.13651111.0.0.4d772f70O7TK0X&file=kernel-debug-debuginfo-3.10.0-1160.99.1.el7.ppc64le.rpm

@@ -1,0 +1,22 @@
+#!/usr/bin/bpftrace                                                                                                                                                                                                                             
+#include <linux/sched.h>
+
+BEGIN                                                                                                                                                                                                                                           
+{                                                                                                                                                                                                                                               
+        printf("Tracing  probe...  Ctrl-C end .\n");                                                                                                                                                                                 
+                                                                                                                                                                                                    
+}                                                                                                                                                                                                                                               
+
+kprobe:do_send_sig_info                                                                                                                                                   
+{
+    int sig = (int)arg1;
+    $target_task = (struct task_struct *)arg2;
+    $current_task = (struct task_struct *)curtask;
+    printf("time %s from pid %d comm %s  / from (by builtin var) %d %s  send signal %d : to  pid %d comm %s \n", strftime("%H:%M:%S", nsecs), $current_task->pid, $current_task->comm, pid, comm, sig, $target_task->pid, $target_task->comm);
+}
+
+END                                                                                                                                                                                                                                             
+{                                                                                                                                                                                                                                               
+        printf("bye!");                                                                                                                                                                                                                      
+}
+

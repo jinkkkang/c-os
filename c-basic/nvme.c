@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
     }
 
     char buf[4096] = {0};
-    struct nvme_admin_cmd mib = {0};
+    struct nvme_admin_cmd mib = {0}; 
     mib.opcode = 0x06; // identify
     mib.nsid = 0;
     mib.addr = (__u64) buf;

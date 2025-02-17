@@ -1,0 +1,29 @@
+#!/usr/bin/bpftrace                                                                                                                                                                                                                             
+#include  <linux/kobject.h>
+#include <linux/device.h>
+
+#include <linux/genhd.h>
+BEGIN                                                                                                                                                                                                                                           
+{                                                                                                                                                                                                                                               
+        printf("Tracing virtio probe...  Ctrl-C end .\n");                                                                                                                                                                                 
+                                                                                                                                                                                                    
+}                                                                                                                                                                                                                                               
+
+kprobe:serial_show                                                                                                                                                                                    
+{
+    $device = (struct device *)arg0;
+    $name = str($device->kobj.name);
+    @a=$name;                                                                                                                                                                                                                               
+    printf("device %s start to get serial%s\n", $name, strftime("%H:%M:%S", nsecs));
+    
+}
+
+kretprobe:serial_show                                                                                                                                                                                    
+{
+    $name=@a;
+    printf("device %s finshe get serial, %s,length: %d\n", $name, strftime("%H:%M:%S", nsecs), retval);
+}
+END                                                                                                                                                                                                                                             
+{                                                                                                                                                                                                                                               
+        printf("bye!");                                                                                                                                                                                                                      
+}

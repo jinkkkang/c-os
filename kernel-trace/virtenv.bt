@@ -1,0 +1,22 @@
+#!/usr/bin/bpftrace                                                                                                                                                                                                                             
+#include  <linux/kobject.h>
+#include <linux/device.h>
+
+#include <linux/genhd.h>
+BEGIN                                                                                                                                                                                                                                           
+{                                                                                                                                                                                                                                               
+        printf("Tracing virtio probe...  Ctrl-C end .\n");                                                                                                                                                                                 
+                                                                                                                                                                                                    
+}                                                                                                                                                                                                                                               
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+kprobe:virtio_uevent                                                                                                                                                                                             
+{                                                                                                                                                                                                                                               
+        $dev=(struct device *)arg0;
+        printf("%s",$dev->kobj->name);
+}
+
+
+END                                                                                                                                                                                                                                             
+{                                                                                                                                                                                                                                               
+        printf("bye!");                                                                                                                                                                                                                      
+}

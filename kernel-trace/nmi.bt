@@ -1,0 +1,29 @@
+#!/usr/bin/bpftrace                                                                                                                                                                                                                             
+#include <linux/pci.h>
+BEGIN                                                                                                                                                                                                                                           
+{                                                                                                                                                                                                                                               
+        printf("Tracing nmi handler... 通 过  Ctrl-C结 束 .\n");                                                                                                                                                                                 
+}                                                                                                                                                                                                                                               
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+kprobe:nmi_handle                                                                                                                                                                                                                 
+{                                                                                                                                                                                                                                                    
+        $type=arg0;
+        printf("%d %s %d %s\n",pid,comm,$type,strftime("%H:%M:%S", nsecs));                                                                                                                                                                                   
+                                                                                                                                                                                                                                                
+}
+
+
+END                                                                                                                                                                                                                                             
+{                                                                                                                                                                                                                                               
+        printf("bye!");                                                                                                                                                                                                                         
+}
+
+bpftrace -e 'kprobe:nmi_handle  { printf("%s %s %s\n", comm, strftime("%H:%M:%S", nsecs), str(arg0)); }'
+
+
+
+bpftrace -e 'kprobe:nmi_handle  { printf("%s %s\n", comm, str(arg0)); }'
+bpftrace -e 'kfunc:nmi_handle { printf("get a nmi rq, time: %s, type: %d\n", strftime("%H:%M:%S", nsecs), args->type); }'
+
+
+

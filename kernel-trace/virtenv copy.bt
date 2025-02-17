@@ -1,0 +1,36 @@
+#!/usr/bin/bpftrace                                                                                                                                                                                                                             
+#include <linux/blk-mq.h>
+#include <linux/genhd.h>
+#include <linux/virtio.h>
+BEGIN                                                                                                                                                                                                                                           
+{                                                                                                                                                                                                                                               
+        printf("Tracing virtio probe...  Ctrl-C end .\n");                                                                                                                                                                                 
+                                                                                                                                                                                                    
+}                                                                                                                                                                                                                                               
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+kprobe:virtio_queue_rq                                                                                                                                                                               
+{                                                                                                                                                                                                                                               
+        $hw=(struct blk_mq_hw_ctx  *)arg0;
+        $queue=(struct blk_mq_queue_data *)arg1;
+        if ( $queue->rq->cmd_flags == 34 ) {
+        printf("%d %d \n",$hw->kobj.name, $queue->rq->cmd_flags);
+        }
+}
+
+kprobe:virtqueue_add_outbuf                                                                                                                                                                                          
+{
+        $vq=(struct virtqueue *)arg0;
+        printf("%s ...  %s",str($vq->name),str(arg3));
+}
+
+kretprobe:virtqueue_add_outbuf                                                                                                                                                                                          
+{
+        printf("%d\n", retval);
+}
+
+
+
+END                                                                                                                                                                                                                                             
+{                                                                                                                                                                                                                                               
+        printf("bye!");                                                                                                                                                                                                                      
+}
