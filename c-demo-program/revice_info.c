@@ -6,16 +6,33 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <errno.h>
+#include <limits.h>
 
 #define NETLINK_TEST    30
 
+#define PATHMAX = 100
+
+// struct sig_info_data_test {
+// 	int sig;
+// 	char send_comm_path;
+// 	int  send_pid;
+
+// 	char *send_parent_comm_path;
+// 	int send_parent_pid;
+
+// 	char *to_comm_path;
+// 	int  to_pid;
+// };
 
 struct sig_info_data_test {
 	int sig;
-	char *send_comm;
+	char send_comm_path[PATH_MAX];
 	int  send_pid;
+
+	// char *send_parent_comm_path;
 	int send_parent_pid;
-	char *to_comm;
+
+	char to_comm_path[PATH_MAX];
 	int  to_pid;
 };
 
@@ -85,13 +102,12 @@ int main(int argc, char **argv)
         memset(&u_info, 0, sizeof(u_info));
         len = sizeof(struct sockaddr_nl);
         ret = recvfrom(skfd, &u_info, sizeof(user_msg_info), 0, (struct sockaddr *)&daddr, &len);
-        if(!ret)
-        {
+        if(!ret){
             perror("recv form kernel error\n");
             close(skfd);
             exit(-1);
         }
-        printf("from kernel netlink info: from:%s %d", u_info.msg.to_comm, u_info.msg.to_pid);
+        printf("from kernel netlink info: sig: %d, from %s  sendpid: %d sendto: %s topid: %d\n", u_info.msg.sig, u_info.msg.send_comm_path,u_info.msg.send_pid, u_info.msg.to_comm_path,u_info.msg.to_pid);
         sleep(1);
     }
     

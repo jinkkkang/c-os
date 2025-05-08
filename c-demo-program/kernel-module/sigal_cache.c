@@ -9,14 +9,15 @@
 
 #define NETLINK_TEST     30
 #define USER_PORT        100
+struct sock *nlsk = NULL;
+extern struct net init_net;
 
 /* For each probe you need to allocate a kprobe structure */
 static struct kprobe kp = {
 	.symbol_name	= "do_send_sig_info",
 };
 
-struct sock *nlsk = NULL;
-extern struct net init_net;
+
 
 /* kprobe pre_handler: called just before the probed instruction is executed */
 // static int __kprobes handler_pre(struct kprobe *p, struct pt_regs *regs)
@@ -69,10 +70,20 @@ int send_sig_info_to_user(struct sig_info_data_test *info)
         nlmsg_free(nl_skb);
         return -1;
     }
-	/* 拷贝数据发送 */
-	sprintf(nlmsg_data(nlh), "signal cached: from=  common: %s  pid: %d ppid: %d  to=: pid: %d common: %s  sig:%d\n",
-	info->send_comm, info->send_pid, info->send_parent_pid, info->to_pid , info->to_comm,  info->sig);
-    // memcpy(nlmsg_data(nlh), info, len);
+
+	//消息的长度
+	int msg_size = sizeof(struct sig_info_data_test);
+	// 获取消息数据部分的指针
+    struct sig_info_data_test *msg_data = (struct sig_info_data_test *) nlmsg_data(nlh);
+
+    // 将自定义结构体的数据复制到消息数据部分
+    memcpy(msg_data, info, msg_size);
+
+
+	// /* 拷贝数据发送 */ 
+	// sprintf(nlmsg_data(nlh), "signal cached: from=  common: %s  pid: %d ppid: %d  to=: pid: %d common: %s  sig:%d\n",
+	// info->send_comm, info->send_pid, info->send_parent_pid, info->to_pid , info->to_comm,  info->sig);
+    // // memcpy(nlmsg_data(nlh), info, len);
     ret = netlink_unicast(nlsk, nl_skb, USER_PORT, MSG_DONTWAIT);
     return ret;
 }

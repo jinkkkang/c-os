@@ -75,7 +75,7 @@ int main(int argc, char const *argv[])
     }
     char s[] = "hello world ss1";
     write_log(s);
-    ps_monitor_init();
+    signal_monitor_init();
     err:
         close_log();
         exit(EXIT_FAILURE);

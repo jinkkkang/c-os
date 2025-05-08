@@ -6,9 +6,12 @@
 
 准备实现的项目有:
 
-1  进程监控，有僵尸进程的话 把进程信息打出来
+1 信号监控: 使用 kprobe 监控信号，把信号信息打印出来; done
+2  进程监控，有僵尸进程的话 把进程信息打出来
  : kernel module中 遍历所有的 task_list
   学习下task_struct
+  进程的top内存情况统计等等.
+3  系统内存监控. 类似 echo m > sys trigger  那样
 
 
 process 

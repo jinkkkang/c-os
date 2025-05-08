@@ -56,7 +56,7 @@ typedef struct pglist_data {
 	spinlock_t node_size_lock;
 #endif
 	unsigned long node_start_pfn; /* 该节点起始的物理页号 */
-	unsigned long node_present_pages; /* total number of physical pages 该节点总的物理页面数 */
+	unsigned long node_present_pages; /* total number of physical pages 该节点总的物理页面数, 不包含内存空洞 */
 	unsigned long node_spanned_pages; /* total size of physical page
 					     range, including holes  该节点总的物理页面数 包括内存空洞 */
 	int node_id; /* 节点id, 从 0 开始 */
@@ -72,6 +72,8 @@ typedef struct pglist_data {
 #ifdef CONFIG_MEMORY_HOTPLUG
 	struct mutex kswapd_lock;
 #endif
+    # 页面回收进程，内核会为每个 NUMA 节点分配一个 kswapd 进程用于回收不经常使用的页面，
+	# 还会为每个 NUMA 节点分配一个 kcompactd 进程用于内存的规整避免内存碎片
 	struct task_struct *kswapd;	/* Protected by kswapd_lock */
 	int kswapd_order;
 	enum zone_type kswapd_highest_zoneidx;
@@ -272,6 +274,7 @@ struct zone {
 	/* Read-mostly fields */
 
 	/* zone watermarks, access with *_wmark_pages(zone) macros */
+	//物理内存区域中的水位线
 	unsigned long _watermark[NR_WMARK];
 	unsigned long watermark_boost;
 
@@ -291,8 +294,10 @@ struct zone {
 #ifdef CONFIG_NUMA
 	int node;
 #endif
+	// 指向该内存区域所属的 NUMA 节点
 	struct pglist_data	*zone_pgdat;
-	struct per_cpu_pages	__percpu *per_cpu_pageset;  /* 每个cpu的冷热页管理 */
+	 /* 每个cpu的冷热页管理 */
+	struct per_cpu_pages	__percpu *per_cpu_pageset; 
 	struct per_cpu_zonestat	__percpu *per_cpu_zonestats;
 	/*
 	 * the high and batch values are copied to individual pagesets for
@@ -310,16 +315,19 @@ struct zone {
 	unsigned long		*pageblock_flags;
 #endif /* CONFIG_SPARSEMEM */
 
+	// 属于该内存区域中的第一个物理页 PFN
 	/* zone_start_pfn == zone_start_paddr >> PAGE_SHIFT */
 	unsigned long		zone_start_pfn;
 
 	/*
 	 * spanned_pages is the total pages spanned by the zone, including
 	 * holes, which is calculated as:
+	 // 该内存区域中所有的物理页个数（包含内存空洞）
 	 * 	spanned_pages = zone_end_pfn - zone_start_pfn;
 	 *
 	 * present_pages is physical pages existing within the zone, which
 	 * is calculated as:
+	 * // 该内存区域所有可用的物理页个数（不包含内存空洞）
 	 *	present_pages = spanned_pages - absent_pages(pages in holes);
 	 *
 	 * present_early_pages is present pages existing within the zone
@@ -329,6 +337,7 @@ struct zone {
 	 * managed_pages is present pages managed by the buddy system, which
 	 * is calculated as (reserved_pages includes pages allocated by the
 	 * bootmem allocator):
+	*  被伙伴系统所管理的物理页数
 	 *	managed_pages = present_pages - reserved_pages;
 	 *
 	 * cma pages is present pages that are assigned for CMA use
@@ -365,6 +374,7 @@ struct zone {
 	unsigned long		cma_pages;
 #endif
 
+	// 内存区域名称：Normal ，DMA，HighMem
 	const char		*name;
 
 #ifdef CONFIG_MEMORY_ISOLATION
@@ -387,6 +397,7 @@ struct zone {
 	CACHELINE_PADDING(_pad1_);
 
 	/* free areas of different sizes  重要*/
+	//// 伙伴系统的核心数据结构 
 	struct free_area	free_area[NR_PAGE_ORDERS];
 
 #ifdef CONFIG_UNACCEPTED_MEMORY
@@ -440,6 +451,7 @@ struct zone {
 
 	CACHELINE_PADDING(_pad3_);
 	/* Zone statistics */
+	//  该内存区域内存使用的统计信息
 	atomic_long_t		vm_stat[NR_VM_ZONE_STAT_ITEMS];
 	atomic_long_t		vm_numa_event[NR_VM_NUMA_EVENT_ITEMS];
 } ____cacheline_internodealigned_in_smp;

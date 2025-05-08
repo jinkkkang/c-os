@@ -20,6 +20,3 @@ int main() {
   
     return 0;  
 }
-
-
-https://mirrors.aliyun.com/centos-altarch/7.9.2009/updates/power9/Packages/Packages/kernel-debug-debuginfo-3.10.0-1160.99.1.el7.ppc64le.rpm?spm=a2c6h.13651111.0.0.4d772f70O7TK0X&file=kernel-debug-debuginfo-3.10.0-1160.99.1.el7.ppc64le.rpm

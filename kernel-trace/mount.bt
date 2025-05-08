@@ -1,0 +1,52 @@
+#!/usr/bin/bpftrace                                                                                                                                                                                                                             
+#include <linux/sched.h>
+
+BEGIN                                                                                                                                                                                                                                           
+{                                                                                                                                                                                                                                               
+        printf("Tracing  probe...  Ctrl-C end .\n");                                                                                                                                                                                 
+                                                                                                                                                                                                    
+}                                                                                                                                                                                                                                               
+
+
+
+kprobe:do_mount                                                                                                                                                 
+{
+    char $dev_name=str(arg0);
+    char $dir_name=str(arg1);
+    char $mount_type=str(arg2);
+    printf("time %s from pid %d comm %s  dev:%s  dir:%s type:%s \n", strftime("%H:%M:%S", nsecs), pid, comm,$dev_name, $dir_name, $mount_type);
+}
+
+END                                                                                                                                                                                                                                             
+{                                                                                                                                                                                                                                               
+        printf("bye!");                                                                                                                                                                                                                      
+}
+
+
+
+bpftrace -e 'kprobe:do_mount { printf("%s %d %s %s %s\n", comm,pid,str(arg0),str(arg1),str(arg2)); }'
+
+
+
+bpftrace -e 'kprobe:do_mount { printf("%s \n", comm, kstack(3)); }'
+
+
+bpftrace -e 'kprobe:do_new_mount {printf("%s, %s, %s\n",str(arg0), str(arg1),kstack)}'
+
+
+bpftrace -e 'kprobe:register_filesystem {printf("%s\n",kstack)}'
+
+bpftrace -e 'kprobe:__request_module {printf("%s,%s\n",str(arg0), kstack)}'
+
+
+
+
+bpftrace -e 'tracepoint:syscalls:sys_enter_mount {printf("%s\n",kstack)}'
+
+
+
+
+bpftrace -e 'tracepoint:syscalls:sys_enter_mount { printf("%s \n", comm, kstack(3)); }'
+
+
+

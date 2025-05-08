@@ -111,6 +111,43 @@ Disassembly of section .text:
   2e:   c3                      retq   
 ```
 
+
+```
+
+#include <stdio.h>
+
+
+int functest(int a, int b, int c) {
+  a += 3;
+  int ret = a + b + c;
+  return ret;
+}
+int main()
+{
+    int res = functest(1, 2 ,3);
+    printf("%d\n", res);
+    return 0;
+}
+
+解释下这段汇编代码(by qwen)
+0000000000401126 <functest>:
+  401126:       55                      push   %rbp
+  401127:       48 89 e5                mov    %rsp,%rbp
+  40112a:       89 7d ec                mov    %edi,-0x14(%rbp)
+  40112d:       89 75 e8                mov    %esi,-0x18(%rbp)
+  401130:       89 55 e4                mov    %edx,-0x1c(%rbp)
+  401133:       83 45 ec 03             addl   $0x3,-0x14(%rbp)
+  401137:       8b 55 ec                mov    -0x14(%rbp),%edx
+  40113a:       8b 45 e8                mov    -0x18(%rbp),%eax
+  40113d:       01 c2                   add    %eax,%edx
+  40113f:       8b 45 e4                mov    -0x1c(%rbp),%eax
+  401142:       01 d0                   add    %edx,%eax
+  401144:       89 45 fc                mov    %eax,-0x4(%rbp)
+  401147:       8b 45 fc                mov    -0x4(%rbp),%eax
+  40114a:       5d                      pop    %rbp
+  40114b:       c3                      retq  
+  ```
+
 ## Leaveq:
 
 leaveq用于函数的退出和栈帧的清理。这个指令通常在函数的结尾处执行，以完成函数的退出操作，包括释放局部变量所占用的栈空间和返回到调用函数的位置。leaveq 的作用如下：

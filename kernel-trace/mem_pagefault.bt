@@ -1,0 +1,14 @@
+#!/usr/bin/bpftrace
+BEGIN
+{
+        printf("Tracing...\n");
+}
+
+krprobe:do_page_fault {
+        @pid_commo = count();
+}
+
+END
+{
+        printf("bye!");
+}

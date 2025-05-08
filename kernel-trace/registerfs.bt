@@ -1,0 +1,23 @@
+#!/usr/bin/bpftrace                                                                                                                                                                                                                             
+#include <linux/fs.h>
+
+BEGIN                                                                                                                                                                                                                                           
+{                                                                                                                                                                                                                                               
+        printf("Tracing  probe...  Ctrl-C end .\n");                                                                                                                                                                                 
+                                                                                                                                                                                                    
+}                                                                                                                                                                                                                                               
+
+
+
+kprobe:register_filesystem                                                                                                                                                 
+{
+    $fstype=(struct file_system_type *)arg0;
+    printf("time %s fs: %s stack:%s \n", strftime("%H:%M:%S", nsecs), str($fstype->name), kstack(10));
+}
+
+END                                                                                                                                                                                                                                             
+{                                                                                                                                                                                                                                               
+        printf("bye!");                                                                                                                                                                                                                      
+}
+
+
